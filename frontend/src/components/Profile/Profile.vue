@@ -1,0 +1,147 @@
+<template>
+	<v-main class="grey lighten-5">
+		<v-container fluid>
+			<v-row>
+				<v-col md="4" cols="12">
+					<v-card class="mx-5">
+						<v-list-item color="rgba(0, 0, 0, .4)">
+							<v-list-item-content>
+								<v-avatar size="100" height="400" class="pb-10">
+									<v-img :src="user.avatar"></v-img>
+								</v-avatar>
+								<v-list-item-title class="title" align="center">
+									{{ user.username }}
+								</v-list-item-title>
+								<v-list-item>{{ user.bio }}</v-list-item>
+							</v-list-item-content>
+						</v-list-item>
+					</v-card>
+				</v-col>
+				<v-col md="8" cols="12" v-if="user.id == userId">
+					<v-form ref="form" @submit.prevent="updateProfile">
+						<v-card class="mx-5">
+							<v-card-text>
+								<v-text-field
+									v-model="bio"
+									label="Ajouter une bio"
+								></v-text-field>
+							</v-card-text>
+							<div class="space">
+								<input
+									type="file"
+									ref="file"
+									@change="selectFile"
+									name="image"
+									label="Télécharger une image"
+									prepend-icon="mdi-camera"
+									outlined
+									dense
+								/>
+							</div>
+							<div class="space">
+								<label v-if="imgPreview" for="preview"
+									>Aperçu de l'image:</label
+								>
+								<img size="100" v-if="imgPreview" :src="imgPreview" />
+							</div>
+							<v-card-actions justify="space-between">
+								<v-btn type="submit" color="success">
+									Sauvegarder
+								</v-btn>
+								<v-btn
+									@click="deleteProfile"
+									v-if="user.id === userId || isAdmin === true"
+									color="red darken-2"
+									dark
+									>Supprimer le profil</v-btn
+								>
+							</v-card-actions>
+						</v-card>
+					</v-form>
+				</v-col>
+			</v-row>
+		</v-container>
+	</v-main>
+</template>
+<script>
+import axios from "axios";
+import $store from "@/store/index";
+import { mapState } from "vuex";
+export default {
+	name: "Profile",
+	data() {
+		return {
+			user: {},
+			bio: "",
+			avatar: "",
+			file: "",
+			imgPreview: "",
+		};
+	},
+	mounted() {
+		axios
+			.get("http://localhost:3000/api/users/profile/" + this.$route.params.id, {
+				headers: {
+					Authorization: `Bearer ${$store.state.token}`,
+				},
+			})
+			.then((response) => {
+				this.user = response.data;
+			})
+			.catch((error) => {
+				console.log(error);
+			});
+	},
+	methods: {
+		selectFile() {
+			this.file = this.$refs.file.files[0];
+			this.imgPreview = URL.createObjectURL(this.file);
+		},
+		updateProfile() {
+			const fd = new FormData();
+			fd.append("bio", this.bio);
+			fd.append("inputFile", this.file);
+			axios
+				.put(
+					"http://localhost:3000/api/users/profile/" + this.$route.params.id,
+					fd,
+					{
+						headers: {
+							Authorization: `Bearer ${$store.state.token}`,
+						},
+					}
+				)
+				.then((response) => {
+					console.log(response);
+					this.$router.go();
+				})
+				.catch((error) => {
+					console.log(error);
+				});
+		},
+		deleteProfile() {
+			axios
+				.delete(
+					"http://localhost:3000/api/users/profile/" + this.$route.params.id,
+					{
+						headers: {
+							Authorization: `Bearer ${$store.state.token}`,
+						},
+					}
+				)
+				.then(() => {
+					window.localStorage.vuex = JSON.stringify({});
+					this.$router.push("/");
+				})
+				.catch((error) => {
+					console.log(error);
+				});
+		},
+	},
+	computed: {
+		...mapState(["isAdmin", "userId"]),
+	},
+};
+</script>
+
+<style></style>
