@@ -58,17 +58,36 @@
 							>
 								<template v-slot:activator="{ on, attrs }">
 									<v-btn
+										@click.stop="dialog = true"
 										v-bind="attrs"
 										v-on="on"
 										text
 										color="red darken-2"
 										small
-										@click="deleteMessage"
 									>
 										<v-icon>mdi-delete</v-icon>
 									</v-btn>
 								</template>
 								<span>Supprimer</span>
+								<v-dialog v-model="dialog" max-width="500">
+									<v-card>
+										<v-card-title>
+											Veuillez confirmer la suppression du message.
+										</v-card-title>
+
+										<v-card-actions @click="dialog = false">
+											<v-spacer></v-spacer>
+
+											<v-btn color="green darken-1" text>
+												ANNULER
+											</v-btn>
+
+											<v-btn color="green darken-3" text @click="deleteMessage">
+												Supprimer le message
+											</v-btn>
+										</v-card-actions>
+									</v-card>
+								</v-dialog>
 							</v-tooltip>
 						</v-col>
 						<v-col>
@@ -184,6 +203,7 @@ export default {
 			comment: "",
 			Likes: [],
 			isLiked: 0,
+			dialog: false,
 		};
 	},
 	created() {
@@ -206,6 +226,7 @@ export default {
 			this.comments.unshift(comment);
 		},
 		deleteMessage() {
+			this.dialog = false;
 			axios
 				.delete(
 					"http://localhost:3000/api/messages/delete/" + this.$route.params.id,
@@ -215,16 +236,19 @@ export default {
 						},
 					}
 				)
-				.then((response) => {
-					if (response.status == 200) {
-						alert("Message supprimé !");
-					}
+				.then(() => {
+					this.$store.dispatch("setSnackbar", {
+						text: "Votre message a été supprimé.",
+					});
 					this.$router.push({
 						name: "allMessages",
 					});
 				})
-				.catch((error) => {
-					console.log(error);
+				.catch(() => {
+					this.$store.dispatch("setSnackbar", {
+						color: "error",
+						text: "Impossible de supprimer le message.",
+					});
 				});
 		},
 		commentSubmit() {
@@ -244,11 +268,15 @@ export default {
 					}
 				)
 				.then(() => {
-					this.comment = "";
+					this.$store.dispatch("setSnackbar", {
+						text: "Commentaire ajouté.",
+					});
 					window.location.reload(true);
 				})
-				.catch((error) => {
-					console.log(error);
+				.catch(() => {
+					this.$store.dispatch("setSnackbar", {
+						text: "Impossible d'ajouter votre commentaire.",
+					});
 				});
 		},
 		deleteComment(id) {
@@ -264,14 +292,17 @@ export default {
 						},
 					}
 				)
-				.then((response) => {
-					if (response.status == 200) {
-						alert("Commentaire supprimé !");
-					}
+				.then(() => {
+					this.$store.dispatch("setSnackbar", {
+						text: "Commentaire supprimé.",
+					});
 					window.location.reload(true);
 				})
-				.catch((error) => {
-					console.log(error);
+				.catch(() => {
+					this.$store.dispatch("setSnackbar", {
+						color: "error",
+						text: "Impossible de supprimer votre commentaire.",
+					});
 				});
 		},
 		getLikes() {
@@ -296,8 +327,11 @@ export default {
 						}
 					}
 				})
-				.catch((err) => {
-					console.log(err);
+				.catch(() => {
+					this.$store.dispatch("setSnackbar", {
+						color: "error",
+						text: "Erreur de chargement. Veuillez réessayer.",
+					});
 				});
 		},
 		addLike() {
@@ -320,13 +354,19 @@ export default {
 					)
 					.then((response) => {
 						this.like = response.data;
+						this.$store.dispatch("setSnackbar", {
+							text: "Like ajouté !",
+						});
 						this.$router.go();
 					})
 					.catch((err) => {
 						console.log(err);
 					});
 			} else {
-				console.log("Déjà liké");
+				this.$store.dispatch("setSnackbar", {
+					color: "error",
+					text: "Veuillez réessayer.",
+				});
 			}
 		},
 		removeLike() {
@@ -336,7 +376,6 @@ export default {
 						"http://localhost:3000/api/messages/" +
 							+this.$route.params.id +
 							"/like",
-
 						{
 							headers: {
 								Authorization: `Bearer ${$store.state.token}`,
@@ -345,10 +384,16 @@ export default {
 					)
 					.then((response) => {
 						this.like = response.data;
+						this.$store.dispatch("setSnackbar", {
+							text: "Like supprimé.",
+						});
 						this.$router.go();
 					})
-					.catch((err) => {
-						console.log(err);
+					.catch(() => {
+						this.$store.dispatch("setSnackbar", {
+							color: "error",
+							text: "Veuillez réessayer.",
+						});
 					});
 			}
 		},

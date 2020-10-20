@@ -97,8 +97,10 @@ export default {
 						},
 					}
 				)
-				.then((res) => {
-					console.log(res);
+				.then(() => {
+					this.$store.dispatch("setSnackbar", {
+						text: "Votre message a été modifié.",
+					});
 					this.$router.push({
 						name: "allMessages",
 					});
@@ -113,5 +115,3 @@ export default {
 	},
 };
 </script>
-
-<style scoped></style>

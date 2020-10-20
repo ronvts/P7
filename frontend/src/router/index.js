@@ -7,11 +7,7 @@ import allMessages from "../components/Message/allMessages.vue";
 import oneMessage from "../components/Message/oneMessage.vue";
 import newMessage from "../components/Message/newMessage.vue";
 import updateMessage from "../components/Message/updateMessage.vue";
-// import Comment from "../components/Comment/Comment.vue";
-// import CommentForm from "../components/Comment/CommentForm.vue";
-
 import Profile from "../components/Profile/Profile.vue";
-// import updateProfil from "../components/user/UpdateProfil";
 
 Vue.use(VueRouter);
 
@@ -36,10 +32,6 @@ const routes = [
 		name: "Profile",
 		component: Profile,
 	},
-	// {
-	// 	path: "/profile/update",
-	// 	name: "updateProfile",
-	// 	component: updateProfile,
 	{
 		path: "/messages",
 		name: "allMessages",
@@ -55,21 +47,11 @@ const routes = [
 		name: "oneMessage",
 		component: oneMessage,
 	},
-
 	{
 		path: "/messages/update/:id",
 		name: "updateMessage",
 		component: updateMessage,
 	},
-	// {
-	// 	path: "/messages/:id",
-	// 	name: "Comment",
-	// 	component: Comment,
-	// {
-	// 	path: "/messages/:id",
-	// 	name: "CommentForm",
-	// 	component: CommentForm,
-	// },
 ];
 
 const router = new VueRouter({

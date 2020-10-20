@@ -1,5 +1,5 @@
 <template>
-	<v-app class="grey lighten-5">
+	<v-app class="blue-grey lighten-5">
 		<v-container justify-content="center" align="center">
 			<v-flex>
 				<v-card
@@ -8,9 +8,10 @@
 					flat
 					hover
 					:to="{ name: 'oneMessage', params: { id: message.id } }"
+					class="blue-grey lighten-5"
 				>
 					<v-card
-						class="mb-10 mx-auto"
+						class="my-10 mx-auto"
 						align="center"
 						min-width="30vw"
 						max-width="70vw"
@@ -84,7 +85,6 @@ export default {
 				},
 			})
 			.then((response) => {
-				console.log(response.data);
 				this.messageList = response.data;
 			})
 			.catch((error) => {

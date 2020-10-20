@@ -54,6 +54,10 @@ export default {
 			axios
 				.post("http://localhost:3000/api/users/register", this.userInfo)
 				.then(() => {
+					this.$store.dispatch("setSnackbar", {
+						showing: true,
+						text: `Vous êtes inscrit! Bienvenue.`,
+					});
 					this.$router.push("login");
 				});
 		},

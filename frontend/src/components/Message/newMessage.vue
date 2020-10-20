@@ -101,7 +101,6 @@ export default {
 			fd.append("title", this.title);
 			fd.append("content", this.content);
 			fd.append("inputFile", this.file);
-			console.log(fd);
 
 			axios
 				.post("http://localhost:3000/api/messages/create", fd, {
@@ -109,8 +108,10 @@ export default {
 						Authorization: `Bearer ${$store.state.token}`,
 					},
 				})
-				.then((res) => {
-					console.log(res);
+				.then(() => {
+					this.$store.dispatch("setSnackbar", {
+						text: "Votre message a été posté",
+					});
 					this.$router.push({
 						name: "allMessages",
 					});
@@ -122,5 +123,3 @@ export default {
 	},
 };
 </script>
-
-<style scoped></style>

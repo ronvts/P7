@@ -1,5 +1,5 @@
 <template>
-	<v-main class="grey lighten-5">
+	<v-main class="blue-grey lighten-5">
 		<v-container fluid>
 			<v-row>
 				<v-col md="4" cols="12">
@@ -49,12 +49,31 @@
 									Sauvegarder
 								</v-btn>
 								<v-btn
-									@click="deleteProfile"
+									@click.stop="dialog = true"
 									v-if="user.id === userId || isAdmin === true"
 									color="red darken-2"
 									dark
 									>Supprimer le profil</v-btn
 								>
+								<v-dialog v-model="dialog" max-width="500">
+									<v-card>
+										<v-card-title>
+											Êtes vous sûr de supprimer votre profil ?
+										</v-card-title>
+
+										<v-card-actions @click="dialog = false">
+											<v-spacer></v-spacer>
+
+											<v-btn color="green darken-1" text>
+												Non
+											</v-btn>
+
+											<v-btn color="green darken-3" text @click="deleteProfile">
+												Oui, je veux supprimer mon compte.
+											</v-btn>
+										</v-card-actions>
+									</v-card>
+								</v-dialog>
 							</v-card-actions>
 						</v-card>
 					</v-form>
@@ -76,6 +95,7 @@ export default {
 			avatar: "",
 			file: "",
 			imgPreview: "",
+			dialog: false,
 		};
 	},
 	mounted() {
@@ -111,8 +131,10 @@ export default {
 						},
 					}
 				)
-				.then((response) => {
-					console.log(response);
+				.then(() => {
+					this.$store.dispatch("setSnackbar", {
+						text: "Votre profil a été modifié.",
+					});
 					this.$router.go();
 				})
 				.catch((error) => {
@@ -120,6 +142,7 @@ export default {
 				});
 		},
 		deleteProfile() {
+			this.dialog = false;
 			axios
 				.delete(
 					"http://localhost:3000/api/users/profile/" + this.$route.params.id,
@@ -131,6 +154,9 @@ export default {
 				)
 				.then(() => {
 					window.localStorage.vuex = JSON.stringify({});
+					this.$store.dispatch("setSnackbar", {
+						text: "Votre profil a été supprimé. A bientôt !",
+					});
 					this.$router.push("/");
 				})
 				.catch((error) => {
