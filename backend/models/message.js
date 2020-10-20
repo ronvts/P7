@@ -10,8 +10,11 @@ module.exports = (sequelize, DataTypes) => {
 		static associate(models) {
 			// define association here
 			models.Message.belongsTo(models.User);
-			models.Message.hasMany(models.Comment);
-			models.Message.hasMany(models.Like);
+			models.Message.hasMany(models.Comment, {
+				onDelete: "cascade",
+				hooks: true,
+			});
+			models.Message.hasMany(models.Like, { onDelete: "cascade", hooks: true });
 		}
 	}
 	Message.init(
