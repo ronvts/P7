@@ -96,40 +96,6 @@ exports.getUserProfile = (req, res) => {
 		});
 };
 
-//Modification profil utilisateur
-// exports.updateProfile = (req, res) => {
-// 	db.User.findOne({
-// 		attributes: ["id", "bio", "email", "avatar"],
-// 		where: { id: req.userId },
-// 	})
-// 		.then((user) => {
-// 			if (!user) {
-// 				return res.status(401).json({ error: "Utilisateur inconnu !" });
-// 			}
-// 			db.User.update(
-// 				{
-// 					bio: req.body.bio,
-// 					avatar: req.body.avatar,
-// 				},
-// 				{
-// 					where: {
-// 						id: user.id,
-// 					},
-// 				}
-// 			)
-// 				.then(() => {
-// 					res.status(200).json({ success: "Modification effectuée !" });
-// 				})
-// 				.catch((error) => {
-// 					console.log("1", error);
-// 					res.status(404).json({ error: error });
-// 				});
-// 		})
-// 		.catch((error) => {
-// 			console.log("2", error);
-// 			res.status(404).json({ error: error });
-// 		});
-// };
 exports.updateProfile = (req, res) => {
 	const id = req.params.id;
 	const data = req.file
