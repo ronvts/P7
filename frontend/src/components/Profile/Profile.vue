@@ -1,86 +1,110 @@
 <template>
-	<v-main class="blue-grey lighten-5">
-		<v-container fluid>
-			<v-row>
-				<v-col md="4" cols="12">
-					<v-card class="mx-5">
-						<v-list-item color="rgba(0, 0, 0, .4)">
-							<v-list-item-content>
-								<v-avatar size="100" height="400" class="pb-10">
-									<v-img :src="user.avatar"></v-img>
-								</v-avatar>
-								<v-list-item-title class="title" align="center">
-									{{ user.username }}
-								</v-list-item-title>
-								<v-list-item>{{ user.bio }}</v-list-item>
-							</v-list-item-content>
-						</v-list-item>
+	<v-app class="blue-grey lighten-5">
+		<v-row class="my-10 mx-5">
+			<v-col md="4" cols="12">
+				<v-card class="mx-5">
+					<v-list-item color="rgba(0, 0, 0, .4)">
+						<v-list-item-content>
+							<v-avatar contain height="600" class="pb-10" rounded>
+								<v-img :src="user.avatar"></v-img>
+							</v-avatar>
+							<v-list-item-title class="title" align="center">
+								{{ user.username }}
+							</v-list-item-title>
+							<v-list-item>{{ user.bio }}</v-list-item>
+						</v-list-item-content>
+					</v-list-item>
+				</v-card>
+			</v-col>
+			<v-col md="8" cols="12" v-if="isAdmin == true && user.id !== userId">
+				<v-btn @click.stop="dialog = true" color="red darken-2" dark
+					>Supprimer le profil</v-btn
+				>
+				<v-dialog v-model="dialog" max-width="500">
+					<v-card>
+						<v-card-title>
+							Êtes vous sûr de supprimer ce profil ?
+						</v-card-title>
+
+						<v-card-actions @click="dialog = false">
+							<v-spacer></v-spacer>
+
+							<v-btn color="green darken-1" text>
+								Non
+							</v-btn>
+
+							<v-btn color="green darken-3" text @click="deleteProfile">
+								Oui
+							</v-btn>
+						</v-card-actions>
 					</v-card>
-				</v-col>
-				<v-col md="8" cols="12" v-if="user.id == userId">
-					<v-form ref="form" @submit.prevent="updateProfile">
-						<v-card class="mx-5">
-							<v-card-text>
-								<v-text-field
-									v-model="bio"
-									label="Ajouter une bio"
-								></v-text-field>
-							</v-card-text>
-							<div class="space">
-								<input
-									type="file"
-									ref="file"
-									@change="selectFile"
-									name="image"
-									label="Télécharger une image"
-									prepend-icon="mdi-camera"
-									outlined
-									dense
-								/>
-							</div>
-							<div class="space">
-								<label v-if="imgPreview" for="preview"
-									>Aperçu de l'image:</label
+				</v-dialog>
+			</v-col>
+			<v-col md="8" cols="12" v-if="user.id == userId">
+				<v-form ref="form" @submit.prevent="updateProfile">
+					<v-card class="mx-5">
+						<v-card-text>
+							<v-text-field
+								v-model="bio"
+								label="Ajouter une bio"
+							></v-text-field>
+						</v-card-text>
+						<div class="my-5">
+							<input
+								type="file"
+								ref="file"
+								name="file"
+								id="file"
+								class="inputfile"
+								@change="selectFile"
+							/>
+							<label for="file"
+								><v-icon color="green darken-2" class="ml-5" hover
+									>mdi-camera-plus</v-icon
 								>
-								<img size="100" v-if="imgPreview" :src="imgPreview" />
-							</div>
-							<v-card-actions justify="space-between">
-								<v-btn type="submit" color="success">
-									Sauvegarder
-								</v-btn>
-								<v-btn
-									@click.stop="dialog = true"
-									v-if="user.id === userId || isAdmin === true"
-									color="red darken-2"
-									dark
-									>Supprimer le profil</v-btn
-								>
-								<v-dialog v-model="dialog" max-width="500">
-									<v-card>
-										<v-card-title>
-											Êtes vous sûr de supprimer votre profil ?
-										</v-card-title>
+								Changer d'avatar</label
+							>
+						</div>
+						<div class="space">
+							<label v-if="imgPreview" for="preview">Aperçu de l'image:</label>
+							<img contain height="400" v-if="imgPreview" :src="imgPreview" />
+						</div>
+						<v-card-actions>
+							<v-btn type="submit" color="success">
+								Sauvegarder
+							</v-btn>
+							<v-btn
+								@click.stop="dialog = true"
+								v-if="user.id === userId"
+								color="red darken-2"
+								dark
+								>Supprimer le profil</v-btn
+							>
+							<v-dialog v-model="dialog" max-width="500">
+								<v-card>
+									<v-card-title>
+										Êtes vous sûr de supprimer votre profil ?
+									</v-card-title>
 
-										<v-card-actions @click="dialog = false">
-											<v-spacer></v-spacer>
+									<v-card-actions @click="dialog = false">
+										<v-spacer></v-spacer>
 
-											<v-btn color="green darken-1" text>
-												Non
-											</v-btn>
+										<v-btn color="green darken-1" text>
+											Non
+										</v-btn>
 
-											<v-btn color="green darken-3" text @click="deleteProfile">
-												Oui, je veux supprimer mon compte.
-											</v-btn>
-										</v-card-actions>
-									</v-card>
-								</v-dialog>
-							</v-card-actions>
-						</v-card>
-					</v-form>
-				</v-col>
-			</v-row>
-		</v-container>
-	</v-main>
+										<v-btn color="green darken-3" text @click="deleteProfile">
+											Oui, je veux supprimer mon compte.
+										</v-btn>
+									</v-card-actions>
+								</v-card>
+							</v-dialog>
+						</v-card-actions>
+					</v-card>
+				</v-form>
+			</v-col>
+		</v-row>
+	</v-app>
 </template>
 <script>
 import axios from "axios";
@@ -170,4 +194,21 @@ export default {
 };
 </script>
 
-<style></style>
+<style scoped>
+.inputfile {
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}
+.inputfile + label {
+	font-weight: 500;
+	display: inline-block;
+	cursor: pointer;
+}
+
+.inputfile:focus + label,
+.inputfile + label:hover {
+	background-color: #effbff;
+}
+</style>

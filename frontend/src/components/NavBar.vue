@@ -1,20 +1,65 @@
 <template>
 	<v-app-bar app color="#01627F" dark>
-		<v-toolbar-title class="d-flex align-center">
-			<v-btn to="/messages" text>Accueil</v-btn>
-		</v-toolbar-title>
-		<v-btn v-if="$store.state.isLogged" text to="/messages/new"
-			>Poster un message</v-btn
-		>
+		<v-tooltip>
+			<template v-slot:activator="{ on, attrs }">
+				<v-btn class="mx-2" to="/messages" icon v-bind="attrs" v-on="on">
+					<v-icon>
+						mdi-home
+					</v-icon>
+				</v-btn>
+			</template>
+			<span>Accueil</span>
+		</v-tooltip>
+		<v-tooltip>
+			<template v-slot:activator="{ on, attrs }">
+				<v-btn
+					v-if="$store.state.isLogged"
+					to="/messages/new"
+					icon
+					v-bind="attrs"
+					v-on="on"
+				>
+					<v-icon>
+						mdi-email-plus
+					</v-icon>
+				</v-btn>
+			</template>
+			<span>Poster un message</span>
+		</v-tooltip>
 		<v-spacer></v-spacer>
-		<div>
-			<v-btn v-if="$store.state.isLogged" @click="myProfile">
-				<v-icon class="mr-1"> mdi-account </v-icon></v-btn
-			>
-			<v-btn v-if="$store.state.isLogged" text class="mr-2" @click="logout"
-				>Déconnexion</v-btn
-			>
-		</div>
+		<v-tooltip>
+			<template v-slot:activator="{ on, attrs }">
+				<v-btn
+					v-if="$store.state.isLogged"
+					@click="myProfile"
+					icon
+					v-bind="attrs"
+					v-on="on"
+				>
+					<v-icon>
+						mdi-account
+					</v-icon>
+				</v-btn>
+			</template>
+			<span>Poster un message</span>
+		</v-tooltip>
+		<v-tooltip>
+			<template v-slot:activator="{ on, attrs }">
+				<v-btn
+					class="mx-2"
+					v-if="$store.state.isLogged"
+					@click="logout"
+					icon
+					v-bind="attrs"
+					v-on="on"
+				>
+					<v-icon>
+						mdi-logout
+					</v-icon>
+				</v-btn>
+			</template>
+			<span>Déconnexion</span>
+		</v-tooltip>
 	</v-app-bar>
 </template>
 

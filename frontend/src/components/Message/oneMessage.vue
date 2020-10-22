@@ -15,13 +15,17 @@
 					<v-list-item align="start" hover>
 						<router-link :to="`/profile/${message.User.id}`">
 							<v-list-item-avatar outlined color="grey darken-3">
-								<v-img x-small :src="message.User.avatar"></v-img>
+								<v-img :src="message.User.avatar"></v-img>
 							</v-list-item-avatar>
 						</router-link>
 
 						<v-list-item-content>
-							<v-list-item-title>{{ message.User.username }}</v-list-item-title>
-							<v-list-item-title>{{ message.createdAt }}</v-list-item-title>
+							<v-list-item-title class="font-weight-medium">{{
+								message.User.username
+							}}</v-list-item-title>
+							<v-list-item-title>{{
+								message.updatedAt | formatDate
+							}}</v-list-item-title>
 						</v-list-item-content>
 					</v-list-item>
 
@@ -29,7 +33,7 @@
 						<v-col>
 							<v-card-title>{{ message.title }}</v-card-title>
 							<v-card-text>{{ message.content }}</v-card-text>
-							<v-img :src="message.attachment"></v-img>
+							<v-img contain max-height="600" :src="message.attachment"></v-img>
 						</v-col>
 					</v-row>
 
@@ -37,15 +41,11 @@
 						<v-col>
 							<v-tooltip top v-if="message.User.id === userId">
 								<template v-slot:activator="{ on, attrs }">
-									<v-btn v-bind="attrs" v-on="on" text color="green" small>
-										<router-link
-											:to="{
-												name: 'updateMessage',
-												params: { MessageId: message.id },
-											}"
-											class="color"
-										>
-											<v-icon>mdi-lead-pencil</v-icon>
+									<v-btn class="mr-5" v-bind="attrs" v-on="on" text small>
+										<router-link :to="`/messages/update/${message.id}`">
+											<v-icon color="cyan darken-2" size="1.5rem"
+												>mdi-pen-plus</v-icon
+											>
 										</router-link>
 									</v-btn>
 								</template>
@@ -62,10 +62,10 @@
 										v-bind="attrs"
 										v-on="on"
 										text
-										color="red darken-2"
+										color="deep-orange darken-3"
 										small
 									>
-										<v-icon>mdi-delete</v-icon>
+										<v-icon size="1.5rem">mdi-delete</v-icon>
 									</v-btn>
 								</template>
 								<span>Supprimer</span>
@@ -79,7 +79,7 @@
 											<v-spacer></v-spacer>
 
 											<v-btn color="green darken-1" text>
-												ANNULER
+												Annuler
 											</v-btn>
 
 											<v-btn color="green darken-3" text @click="deleteMessage">
@@ -94,7 +94,7 @@
 							<v-tooltip top v-if="!isLiked">
 								<template v-slot:activator="{ on, attrs }">
 									<v-btn icon v-bind="attrs" v-on="on" @click="addLike">
-										<v-icon size="1.8rem" color="green">
+										<v-icon size="1.5rem" color="green">
 											mdi-thumb-up-outline
 										</v-icon>
 									</v-btn>
@@ -104,7 +104,7 @@
 							<v-tooltip top v-else-if="isLiked">
 								<template v-slot:activator="{ on, attrs }">
 									<v-btn icon v-bind="attrs" v-on="on" @click="removeLike">
-										<v-icon size="1.8rem" color="green">
+										<v-icon size="1.5rem" color="green">
 											mdi-thumb-up
 										</v-icon>
 									</v-btn>
@@ -112,64 +112,125 @@
 								<span>J'aime</span>
 							</v-tooltip>
 							<span>{{ Likes.length }}</span>
+							<v-tooltip top>
+								<template v-slot:activator="{ on, attrs }">
+									<v-btn
+										class="ml-5"
+										icon
+										v-bind="attrs"
+										v-on="on"
+										@click="toBottom"
+									>
+										<v-icon size="1.5rem" color="teal">
+											mdi-comment-plus
+										</v-icon>
+									</v-btn>
+								</template>
+								<span>Ajouter un commentaire</span>
+							</v-tooltip>
 						</v-col>
 					</v-card-actions>
 				</v-card>
 			</v-col>
 		</v-row>
-		<v-col cols="12">
-			<v-card
-				class="mx-auto"
-				min-width="350"
-				max-width="70vw"
-				v-for="comment in message.Comments"
-				:key="comment.id"
-			>
-				<v-col v-if="comment.User.id == userId">
-					<v-row justify="end" class="margin">
-						<v-tooltip top>
+		<v-row>
+			<v-col cols="12">
+				<v-card
+					class="mx-auto my-5"
+					min-width="350"
+					max-width="60vw"
+					v-for="comment in message.Comments"
+					:key="comment.id"
+				>
+					<v-list-item v-if="comment.User.id == userId">
+						<router-link :to="`/profile/${comment.User.id}`">
+							<v-list-item-avatar outlined color="grey darken-3">
+								<v-img x-small :src="comment.User.avatar"></v-img>
+							</v-list-item-avatar>
+						</router-link>
+
+						<v-card-text
+							><span class="font-weight-medium text-decoration-underline">{{
+								comment.User.username
+							}}</span>
+							a commenté :</v-card-text
+						>
+					</v-list-item>
+					<v-card-text class="color">{{ comment.content }}</v-card-text>
+					<v-list-item>
+						<v-card-text class="end"
+							>le {{ comment.createdAt | formatDate }}</v-card-text
+						>
+						<v-tooltip right top>
 							<template v-slot:activator="{ on, attrs }">
 								<v-btn
+									@click.stop="dialog = true"
 									v-bind="attrs"
 									v-on="on"
 									text
-									color="red"
+									color="deep-orange darken-3"
 									small
-									@click="deleteComment(comment.id)"
 								>
 									<v-icon>mdi-delete</v-icon>
 								</v-btn>
 							</template>
 							<span>Supprimer</span>
+							<v-dialog v-model="dialog" max-width="500">
+								<v-card>
+									<v-card-title>
+										Supprimer votre commentaire ?
+									</v-card-title>
+
+									<v-card-actions @click="dialog = false">
+										<v-spacer></v-spacer>
+
+										<v-btn color="green darken-1" text>
+											Annuler
+										</v-btn>
+
+										<v-btn
+											color="green darken-3"
+											text
+											@click="deleteComment(comment.id)"
+										>
+											Supprimer
+										</v-btn>
+									</v-card-actions>
+								</v-card>
+							</v-dialog>
 						</v-tooltip>
-					</v-row>
-				</v-col>
-				<router-link :to="`/profile/${comment.User.id}`">
-					<v-list-item-avatar outlined color="grey darken-3">
-						<v-img x-small :src="comment.User.avatar"></v-img>
-					</v-list-item-avatar>
-				</router-link>
-				<v-card-text>{{ comment.User.username }} a commenté</v-card-text>
-				<v-card-text class="color">{{ comment.content }}</v-card-text>
-				<v-card-text class="end">à : {{ comment.createdAt }}</v-card-text>
-			</v-card>
-		</v-col>
+					</v-list-item>
+				</v-card>
+			</v-col>
+		</v-row>
 		<v-col cols="12">
-			<v-card class="mx-auto" min-width="350" max-width="70vw">
+			<v-card class="mx-auto" min-width="350" max-width="60vw">
 				<v-container>
 					<v-card flat>
 						<div>
-							<v-form ref="form" @submit.prevent="commentSubmit()">
+							<v-form
+								ref="form"
+								v-model="valid"
+								@submit.prevent="commentSubmit()"
+							>
 								<v-textarea
 									outlined
 									v-model="comment"
 									type="text"
 									placeholder="Votre commentaire..."
 									required
+									:rules="commentRules"
 								></v-textarea>
-								<div class="commentSubBtn" align="center">
-									<v-btn type="submit" small value="submit" color="info"
-										>Poster un commentaire</v-btn
+								<div align="center">
+									<v-btn
+										id="postCom"
+										type="submit"
+										small
+										value="submit"
+										color="cyan darken-2"
+										dark
+										:disabled="!valid"
+										>Poster</v-btn
 									>
 								</div>
 							</v-form>
@@ -184,6 +245,7 @@
 <script>
 import axios from "axios";
 import $store from "@/store/index";
+import dayjs from "dayjs";
 import { mapState } from "vuex";
 
 export default {
@@ -204,6 +266,11 @@ export default {
 			Likes: [],
 			isLiked: 0,
 			dialog: false,
+			valid: false,
+			commentRules: [
+				(v) =>
+					(v && v.length >= 3) || "Votre commentaire ne peut pas être vide.",
+			],
 		};
 	},
 	created() {
@@ -222,8 +289,8 @@ export default {
 			});
 	},
 	methods: {
-		updateComment(comment) {
-			this.comments.unshift(comment);
+		toBottom() {
+			this.$vuetify.goTo("#postCom");
 		},
 		deleteMessage() {
 			this.dialog = false;
@@ -252,32 +319,31 @@ export default {
 				});
 		},
 		commentSubmit() {
-			if (this.comment == null) {
-				return false;
+			if (this.$refs.form.validate()) {
+				axios
+					.post(
+						"http://localhost:3000/api/messages/" +
+							this.$route.params.id +
+							"/comment/",
+						{ content: this.comment },
+						{
+							headers: {
+								Authorization: `Bearer ${$store.state.token}`,
+							},
+						}
+					)
+					.then(() => {
+						this.$store.dispatch("setSnackbar", {
+							text: "Commentaire ajouté.",
+						});
+						window.location.reload(true);
+					})
+					.catch(() => {
+						this.$store.dispatch("setSnackbar", {
+							text: "Impossible d'ajouter votre commentaire.",
+						});
+					});
 			}
-			axios
-				.post(
-					"http://localhost:3000/api/messages/" +
-						this.$route.params.id +
-						"/comment/",
-					{ content: this.comment },
-					{
-						headers: {
-							Authorization: `Bearer ${$store.state.token}`,
-						},
-					}
-				)
-				.then(() => {
-					this.$store.dispatch("setSnackbar", {
-						text: "Commentaire ajouté.",
-					});
-					window.location.reload(true);
-				})
-				.catch(() => {
-					this.$store.dispatch("setSnackbar", {
-						text: "Impossible d'ajouter votre commentaire.",
-					});
-				});
 		},
 		deleteComment(id) {
 			axios
@@ -398,8 +464,20 @@ export default {
 			}
 		},
 	},
+	filters: {
+		formatDate: function(value) {
+			if (value) {
+				return dayjs(String(value)).format("DD-MMM-YYYY à HH:mm");
+			}
+		},
+	},
 	computed: {
 		...mapState(["isAdmin", "userId"]),
 	},
 };
 </script>
+<style scoped>
+a {
+	text-decoration: none;
+}
+</style>

@@ -7,6 +7,7 @@ import allMessages from "../components/Message/allMessages.vue";
 import oneMessage from "../components/Message/oneMessage.vue";
 import newMessage from "../components/Message/newMessage.vue";
 import updateMessage from "../components/Message/updateMessage.vue";
+
 import Profile from "../components/Profile/Profile.vue";
 
 Vue.use(VueRouter);

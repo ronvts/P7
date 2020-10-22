@@ -1,35 +1,33 @@
 <template>
-	<v-container>
-		<v-app>
-			<v-card width="400" class="mx-auto mt-10">
-				<v-card-text>
-					<v-form v-model="valid">
-						<v-text-field
-							v-model="userInfo.email"
-							label="Email"
-							prepend-icon="mdi-account-circle"
-						/>
-						<v-text-field
-							v-model="userInfo.password"
-							:type="showPassword ? 'text' : 'password'"
-							label="Password"
-							prepend-icon="mdi-lock"
-							:append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-							@click:append="showPassword = !showPassword"
-						/>
-					</v-form>
-				</v-card-text>
-				<v-divider></v-divider>
-				<v-card-actions>
-					<v-spacer />
-					<v-btn color="info" :disabled="!valid" @click="submitForm">
-						Connexion</v-btn
-					>
-					<v-spacer />
-				</v-card-actions>
-			</v-card>
-		</v-app>
-	</v-container>
+	<v-app class="blue-grey lighten-5">
+		<v-card width="400" class="mx-auto mt-15">
+			<v-card-text>
+				<v-form v-model="valid">
+					<v-text-field
+						v-model="userInfo.email"
+						label="Email"
+						prepend-icon="mdi-account-circle"
+					/>
+					<v-text-field
+						v-model="userInfo.password"
+						:type="showPassword ? 'text' : 'password'"
+						label="Password"
+						prepend-icon="mdi-lock"
+						:append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+						@click:append="showPassword = !showPassword"
+					/>
+				</v-form>
+			</v-card-text>
+			<v-divider></v-divider>
+			<v-card-actions>
+				<v-spacer />
+				<v-btn color="info" :disabled="!valid" @click="submitForm">
+					Connexion</v-btn
+				>
+				<v-spacer />
+			</v-card-actions>
+		</v-card>
+	</v-app>
 </template>
 
 <script>
@@ -60,8 +58,11 @@ export default {
 					});
 					this.$router.push({ name: "allMessages" });
 				})
-				.catch((error) => {
-					console.log("An error occurred:", error.response);
+				.catch(() => {
+					this.$store.dispatch("setSnackbar", {
+						color: "error",
+						text: `Identifiants incorrects !`,
+					});
 				});
 		},
 	},

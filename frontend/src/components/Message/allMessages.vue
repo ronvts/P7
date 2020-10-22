@@ -22,17 +22,23 @@
 							</v-list-item-avatar>
 
 							<v-list-item-content>
-								<v-list-item-title>{{
+								<v-list-item-title class="font-weight-medium">{{
 									message.User.username
 								}}</v-list-item-title>
-								<v-list-item-title>{{ message.createdAt }}</v-list-item-title>
+								<v-list-item-title>{{
+									message.createdAt | formatDate
+								}}</v-list-item-title>
 							</v-list-item-content>
 						</v-list-item>
 						<v-row>
 							<v-col>
 								<v-card-title>{{ message.title }}</v-card-title>
 								<v-card-text>{{ message.content }}</v-card-text>
-								<v-img max-height="30vh" :src="message.attachment"></v-img>
+								<v-img
+									contain
+									max-height="500"
+									:src="message.attachment"
+								></v-img>
 							</v-col>
 						</v-row>
 
@@ -67,6 +73,7 @@
 <script>
 import axios from "axios";
 import $store from "@/store/index";
+import dayjs from "dayjs";
 
 export default {
 	name: "allMessages",
@@ -76,6 +83,13 @@ export default {
 			user: {},
 			messageList: [],
 		};
+	},
+	filters: {
+		formatDate: function(value) {
+			if (value) {
+				return dayjs(String(value)).format("DD-MMM-YYYY à HH:mm");
+			}
+		},
 	},
 	mounted() {
 		axios
