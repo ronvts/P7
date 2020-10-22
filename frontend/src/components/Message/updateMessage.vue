@@ -50,7 +50,7 @@
 				</div>
 				<div class="space">
 					<label v-if="imgPreview" for="preview">Aperçu de l'image:</label>
-					<img size="100" v-if="imgPreview" :src="imgPreview" />
+					<img contain height="500" v-if="imgPreview" :src="imgPreview" />
 				</div>
 
 				<div>
