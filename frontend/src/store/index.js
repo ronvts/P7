@@ -5,7 +5,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
 	strict: false,
-	plugins: [createPersistedState({ storage: window.sessionStorage })],
+	plugins: [createPersistedState()],
 	state: {
 		token: null,
 		userId: null,
