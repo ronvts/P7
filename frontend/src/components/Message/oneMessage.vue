@@ -142,7 +142,7 @@
 					v-for="comment in message.Comments"
 					:key="comment.id"
 				>
-					<v-list-item v-if="comment.User.id == userId">
+					<v-list-item>
 						<router-link :to="`/profile/${comment.User.id}`">
 							<v-list-item-avatar outlined color="grey darken-3">
 								<v-img x-small :src="comment.User.avatar"></v-img>
@@ -161,7 +161,11 @@
 						<v-card-text class="end"
 							>le {{ comment.createdAt | formatDate }}</v-card-text
 						>
-						<v-tooltip right top>
+						<v-tooltip
+							right
+							top
+							v-if="comment.User.id == userId || isAdmin == true"
+						>
 							<template v-slot:activator="{ on, attrs }">
 								<v-btn
 									@click.stop="dialog = true"

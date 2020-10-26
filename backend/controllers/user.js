@@ -145,20 +145,24 @@ exports.updateProfile = (req, res) => {
 
 exports.deleteProfile = (req, res) => {
 	db.User.findOne({
-		where: { id: req.params.id },
+		attributes: ["id", "email", "username", "isAdmin"],
+		where: { id: req.userId },
 	})
 		.then((user) => {
-			if (!user) {
-				return res.status(401).json({ error: "Utilisateur inconnu !" });
-			}
-
-			db.User.destroy({
-				where: { id: req.params.id },
-			})
-				.then(() => {
-					res.status(201).json({ message: "Compte supprimé !" });
+			// Si l'utilisateur est le créateur OU admin dans la db, on supprime le profil
+			if (user && (user.isAdmin == true || user.id == req.userId)) {
+				db.User.destroy({
+					where: { id: req.params.id },
 				})
-				.catch((error) => res.status(404).json({ error: error }));
+					.then(() => {
+						res.status(201).json({ message: "Compte supprimé !" });
+					})
+					.catch((error) => res.status(404).json({ error: error }));
+				// Si le profil n'est pas le sien ou n'est pas admin
+				// Status 403 : non autorisé
+			} else {
+				res.status(403).json("Vous n'avez pas les droits");
+			}
 		})
-		.catch((error) => res.status(404).json({ error: error }));
+		.catch((error) => res.status(500).json(console.log(error)));
 };

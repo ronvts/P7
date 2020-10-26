@@ -155,42 +155,42 @@ exports.update = (req, res) => {
 };
 
 exports.delete = (req, res) => {
-	const id = req.params.id;
-
-	db.Message.findByPk(id)
-		.then((message) => {
-			const filename = message.attachment
-				? {
-						name: message.attachment.split("3000/")[1],
-				  }
-				: {
-						name: message.attachment,
-				  };
-			fs.unlink(`images/${filename.name}`, () => {
-				db.Message.destroy({
-					where: { id: id },
+	db.User.findOne({
+		attributes: ["id", "email", "username", "isAdmin"],
+		where: { id: req.userId },
+	})
+		.then((user) => {
+			// Si l'utilisateur est le créateur OU admin dans la db, on supprime le message
+			if (user && (user.isAdmin == true || req.userId == user.id)) {
+				db.Message.findOne({
+					where: { id: req.params.id },
 				})
-					.then((num) => {
-						if (num == 1) {
-							res.send({
-								message: "Message effacé.",
+					.then((message) => {
+						if (message.attachment) {
+							const filename = message.attachment.split("/images/")[1];
+							fs.unlink(`images/${filename}`, () => {
+								db.Message.destroy({
+									where: { id: message.id },
+								})
+									.then(() => res.end())
+									.catch((err) => res.status(500).json(err));
 							});
 						} else {
-							res.send({
-								message: "Erreur lors de la supression du message",
-							});
+							db.Message.destroy({
+								where: { id: message.id },
+							})
+								.then(() => res.end())
+								.catch((err) => res.status(500).json(err));
 						}
 					})
-					.catch((err) => {
-						res.status(500).send({
-							message: "Impossible de supprimer ce message.",
-						});
-					});
-			});
+					.catch((err) => res.status(500).json(err));
+				// Si l'utilisateur n'est pas le créateur ni admin
+				// Status 403 : non autorisé
+			} else {
+				res.status(403).json("Non autorisé à supprimer ce message");
+			}
 		})
-		.catch((err) => {
-			console.log(err);
-		});
+		.catch((error) => res.status(500).json(console.log(error)));
 };
 
 // Ajouter un like

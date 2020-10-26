@@ -33,3 +33,4 @@ npx sequelize-cli db:seed:all
 npm install
 npm run serve
 ```
+Mot de passe utilisateur/admin : Azerty1234!

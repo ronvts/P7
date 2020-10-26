@@ -10,7 +10,7 @@ router.post("/create", auth, multer, messageCtrl.create);
 router.get("/", auth, messageCtrl.getAllMessages);
 router.get("/:id", auth, messageCtrl.getOneMessage);
 router.put("/update/:id", auth, multer, messageCtrl.update);
-router.delete("/delete/:id", messageCtrl.delete);
+router.delete("/delete/:id", auth, messageCtrl.delete);
 
 //Likes
 router.post("/:id/like", auth, messageCtrl.addLike);

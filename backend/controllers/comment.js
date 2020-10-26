@@ -41,24 +41,31 @@ exports.createComment = (req, res) => {
 			res.status(500).json({ error: "Impossible !" });
 		});
 };
+
 exports.deleteComment = (req, res) => {
-	db.Comment.destroy({
-		where: { id: req.params.id },
+	db.User.findOne({
+		attributes: ["id", "email", "username", "isAdmin"],
+		where: { id: req.userId },
 	})
-		.then((num) => {
-			if (num == 1) {
-				res.send({
-					message: "Message was deleted successfully!",
-				});
+		.then((user) => {
+			// Si l'utilisateur est le créateur OU admin dans la db, on supprime le commentaire
+			if (user && (user.isAdmin == true || user.id == req.userId)) {
+				db.Comment.findOne({
+					where: { id: req.params.id },
+				})
+					.then((comment) => {
+						db.Comment.destroy({
+							where: { id: comment.id },
+						})
+							.then(() => res.end())
+							.catch((err) => res.status(500).json(err));
+					})
+					.catch((err) => res.status(500).json(err));
+				// Si l'utilisateur n'est pas le créateur ni admin
+				// Status 403 : non autorisé
 			} else {
-				res.send({
-					message: `Cannot delete Message with id=${id}. Maybe message was not found!`,
-				});
+				res.status(403).json("Non autorisé à supprimer ce commentaire");
 			}
 		})
-		.catch((err) => {
-			res.status(500).send({
-				message: "Could not delete message with id=" + id,
-			});
-		});
+		.catch((error) => res.status(500).json(console.log(error)));
 };
