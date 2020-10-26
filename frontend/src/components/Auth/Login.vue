@@ -38,7 +38,7 @@ export default {
 			valid: false,
 			showPassword: false,
 			userInfo: {
-				email: "ronanv@hotmail.fr",
+				email: "",
 				password: "Azerty1234!",
 			},
 		};

@@ -41,7 +41,7 @@
 					</v-icon>
 				</v-btn>
 			</template>
-			<span>Poster un message</span>
+			<span>Mon profil</span>
 		</v-tooltip>
 		<v-tooltip>
 			<template v-slot:activator="{ on, attrs }">
