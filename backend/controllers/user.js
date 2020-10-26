@@ -143,26 +143,60 @@ exports.updateProfile = (req, res) => {
 	});
 };
 
+// exports.deleteProfile = (req, res) => {
+// 	db.User.findOne({
+// 		attributes: ["id", "email", "username", "isAdmin"],
+// 		where: { id: req.userId },
+// 	})
+// 		.then((user) => {
+// 			// Si l'utilisateur est le créateur OU admin dans la db, on supprime le profil
+// 			if (user && (user.isAdmin == true || user.id == req.userId)) {
+// 				db.User.destroy({
+// 					where: { id: req.params.id },
+// 				})
+// 					.then(() => {
+// 						res.status(201).json({ message: "Compte supprimé !" });
+// 					})
+// 					.catch((error) => res.status(404).json({ error: error }));
+// 				// Si le profil n'est pas le sien ou n'est pas admin
+// 				// Status 403 : non autorisé
+// 			} else {
+// 				res.status(403).json("Vous n'avez pas les droits");
+// 			}
+// 		})
+// 		.catch((error) => res.status(500).json(console.log(error)));
+// };
+
 exports.deleteProfile = (req, res) => {
 	db.User.findOne({
-		attributes: ["id", "email", "username", "isAdmin"],
-		where: { id: req.userId },
+		where: { id: req.params.id },
 	})
-		.then((user) => {
-			// Si l'utilisateur est le créateur OU admin dans la db, on supprime le profil
-			if (user && (user.isAdmin == true || user.id == req.userId)) {
-				db.User.destroy({
-					where: { id: req.params.id },
-				})
-					.then(() => {
-						res.status(201).json({ message: "Compte supprimé !" });
-					})
-					.catch((error) => res.status(404).json({ error: error }));
-				// Si le profil n'est pas le sien ou n'est pas admin
-				// Status 403 : non autorisé
+		.then((userFound) => {
+			if (userFound) {
+				db.User.findOne({
+					attributes: ["isAdmin"],
+					where: { id: req.userId },
+				}).then((userIsAdmin) => {
+					if (
+						req.userId == userFound.id ||
+						userIsAdmin.dataValues.isAdmin == true
+					) {
+						db.User.destroy({
+							where: { id: req.params.id },
+						})
+							.then(() => res.status(201).json({ message: "Compte supprimé" }))
+							.catch((error) => res.status(404).json({ error }));
+					} else {
+						res.status(401).json({
+							error: "Vous n'êtes pas autorisé à supprimer le compte",
+						});
+					}
+				});
 			} else {
-				res.status(403).json("Vous n'avez pas les droits");
+				res.status(404).json({ error: "Profil non trouvé" });
 			}
 		})
-		.catch((error) => res.status(500).json(console.log(error)));
+		.catch((error) =>
+			res.status(500).json({ error: "Impossible de supprimer le compte" })
+		);
 };
