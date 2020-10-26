@@ -53,6 +53,7 @@ exports.deleteComment = (req, res) => {
 					where: { id: req.userId },
 				})
 					.then((userIsAdmin) => {
+						// Si l'utilisateur est le créateur OU admin dans la db, on supprime le commentaire
 						if (
 							req.userId == commentFound.UserId ||
 							userIsAdmin.dataValues.isAdmin == true
@@ -65,7 +66,9 @@ exports.deleteComment = (req, res) => {
 								)
 								.catch((error) => res.status(404).json({ error }));
 						} else {
-							res.status(401).json({
+							// Si l'utilisateur n'est pas le créateur ni admin
+							// Status 403 : non autorisé
+							res.status(403).json({
 								error: "Vous n'êtes pas autorisé à supprimer le commentaire",
 							});
 						}

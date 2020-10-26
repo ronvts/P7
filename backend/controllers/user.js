@@ -154,6 +154,7 @@ exports.deleteProfile = (req, res) => {
 					where: { id: req.userId },
 				})
 					.then((userIsAdmin) => {
+						// Si c'est le profil de l'utilisateur ou l'admin, on supprime le commentaire
 						if (
 							req.userId == userFound.id ||
 							userIsAdmin.dataValues.isAdmin == true
@@ -166,7 +167,9 @@ exports.deleteProfile = (req, res) => {
 								)
 								.catch((error) => res.status(404).json({ error }));
 						} else {
-							res.status(401).json({
+							// Si ce n'est pas le profil de l'utilisateur ni l'admin qui demande la suppression
+							// Status 403 : non autorisé
+							res.status(403).json({
 								error: "Vous n'êtes pas autorisé à supprimer le compte",
 							});
 						}
