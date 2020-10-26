@@ -43,29 +43,43 @@ exports.createComment = (req, res) => {
 };
 
 exports.deleteComment = (req, res) => {
-	db.User.findOne({
-		attributes: ["id", "email", "username", "isAdmin"],
-		where: { id: req.userId },
+	db.Comment.findOne({
+		where: { id: req.params.id },
 	})
-		.then((user) => {
-			// Si l'utilisateur est le créateur OU admin dans la db, on supprime le commentaire
-			if (user && (user.isAdmin == true || user.id == req.userId)) {
-				db.Comment.findOne({
-					where: { id: req.params.id },
+		.then((commentFound) => {
+			if (commentFound) {
+				db.User.findOne({
+					attributes: ["isAdmin"],
+					where: { id: req.userId },
 				})
-					.then((comment) => {
-						db.Comment.destroy({
-							where: { id: comment.id },
-						})
-							.then(() => res.end())
-							.catch((err) => res.status(500).json(err));
+					.then((userIsAdmin) => {
+						if (
+							req.userId == commentFound.UserId ||
+							userIsAdmin.dataValues.isAdmin == true
+						) {
+							db.Comment.destroy({
+								where: { id: req.params.id },
+							})
+								.then(() =>
+									res.status(201).json({ message: "Commentaire supprimé" })
+								)
+								.catch((error) => res.status(404).json({ error }));
+						} else {
+							res.status(401).json({
+								error: "Vous n'êtes pas autorisé à supprimer le commentaire",
+							});
+						}
 					})
-					.catch((err) => res.status(500).json(err));
-				// Si l'utilisateur n'est pas le créateur ni admin
-				// Status 403 : non autorisé
+					.catch((error) =>
+						res.status(500).json({
+							error: "Impossible de communiquer avec la base de données",
+						})
+					);
 			} else {
-				res.status(403).json("Non autorisé à supprimer ce commentaire");
+				res.status(404).json({ error: "Commentaire non trouvé" });
 			}
 		})
-		.catch((error) => res.status(500).json(console.log(error)));
+		.catch((error) =>
+			res.status(500).json({ error: "Impossible de supprimer le commentaire" })
+		);
 };
