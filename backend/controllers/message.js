@@ -94,7 +94,7 @@ exports.create = (req, res) => {
 						});
 				}
 			} else {
-				res.status(400).json(error);
+				res.status(400).json();
 			}
 		})
 		.catch((error) => {
@@ -155,42 +155,64 @@ exports.update = (req, res) => {
 };
 
 exports.delete = (req, res) => {
-	db.User.findOne({
-		attributes: ["id", "email", "username", "isAdmin"],
-		where: { id: req.userId },
+	db.Message.findOne({
+		where: { id: req.params.id },
 	})
-		.then((user) => {
-			// Si l'utilisateur est le créateur OU admin dans la db, on supprime le message
-			if (user && (user.isAdmin == true || req.userId == user.id)) {
-				db.Message.findOne({
-					where: { id: req.params.id },
+		.then((msgFound) => {
+			if (msgFound) {
+				db.User.findOne({
+					attributes: ["isAdmin"],
+					where: { id: req.userId },
 				})
-					.then((message) => {
-						if (message.attachment) {
-							const filename = message.attachment.split("/images/")[1];
-							fs.unlink(`images/${filename}`, () => {
-								db.Message.destroy({
-									where: { id: message.id },
-								})
-									.then(() => res.end())
-									.catch((err) => res.status(500).json(err));
-							});
-						} else {
-							db.Message.destroy({
-								where: { id: message.id },
+					.then((userIsAdmin) => {
+						if (
+							req.userId == msgFound.UserId ||
+							userIsAdmin.dataValues.isAdmin == true
+						) {
+							db.Message.findOne({
+								where: { id: req.params.id },
 							})
-								.then(() => res.end())
-								.catch((err) => res.status(500).json(err));
+								.then((message) => {
+									if (message.attachment) {
+										const filename = message.attachment.split("/images/")[1];
+										fs.unlink(`images/${filename}`, () => {
+											db.Message.destroy({
+												where: { id: message.id },
+											})
+												.then(() => res.end())
+												.catch((err) => res.status(500).json(err));
+										});
+									} else {
+										db.Message.destroy({
+											where: { id: message.id },
+										})
+											.then(() => res.end())
+											.catch((err) => res.status(500).json(err));
+									}
+								})
+								.then(() =>
+									res.status(201).json({ message: "Message supprimé" })
+								)
+								.catch((error) => res.status(404).json({ error }));
+						} else {
+							res.status(401).json({
+								error: "Vous n'êtes pas autorisé à supprimer le message",
+							});
 						}
 					})
-					.catch((err) => res.status(500).json(err));
-				// Si l'utilisateur n'est pas le créateur ni admin
-				// Status 403 : non autorisé
+
+					.catch((error) =>
+						res.status(500).json({
+							error: "Impossible de communiquer avec la base de données",
+						})
+					);
 			} else {
-				res.status(403).json("Non autorisé à supprimer ce message");
+				res.status(404).json({ error: "Message non trouvé" });
 			}
 		})
-		.catch((error) => res.status(500).json(console.log(error)));
+		.catch((error) =>
+			res.status(500).json({ error: "Impossible de supprimer le message" })
+		);
 };
 
 // Ajouter un like
